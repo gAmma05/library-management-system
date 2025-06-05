@@ -1,0 +1,44 @@
+Table Book {
+  bookId int [pk, increment]
+  title varchar
+  description text
+  isbn varchar
+  author varchar
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table Category {
+  categoryId int [pk, increment]
+  name varchar
+  description text
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table BookCategory {
+  bookCategoryId int [pk, increment]
+  bookId int [ref: > Book.bookId]
+  categoryId int [ref: > Category.categoryId]
+}
+
+Table User {
+  userId int [pk, increment]
+  email varchar
+  password varchar
+  fname varchar
+  lname varchar
+  dob date
+  role varchar
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table Review {
+  reviewId int [pk, increment]
+  rate int
+  bookId int [ref: > Book.bookId]
+  userId int [ref: > User.userId]
+  content text
+  createdAt datetime
+}

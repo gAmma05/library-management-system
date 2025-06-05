@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        .register-container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group .error {
+            color: #dc3545;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #34a853;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .register-btn:hover {
+            background-color: #2d8d47;
+        }
+
+        .back-to-login {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .back-to-login a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+
+        .back-to-login a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <h2 style="text-align: center; margin-bottom: 20px;">Create Account</h2>
+
+    <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required
+                   maxlength="100" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+            <div class="error" id="email-error">Please enter a valid email address</div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required
+                   minlength="8" maxlength="255"
+                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
+            <div class="error" id="password-error">
+                Password must contain at least 8 characters, including uppercase, lowercase and numbers
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+            <div class="error" id="confirm-password-error">Passwords do not match</div>
+        </div>
+
+        <div class="form-group">
+            <label for="fname">First Name:</label>
+            <input type="text" id="fname" name="fname" required
+                   maxlength="100" pattern="[A-Za-z ]{1,100}">
+            <div class="error" id="fname-error">Please enter a valid first name</div>
+        </div>
+
+        <div class="form-group">
+            <label for="lname">Last Name:</label>
+            <input type="text" id="lname" name="lname" required
+                   maxlength="100" pattern="[A-Za-z ]{1,100}">
+            <div class="error" id="lname-error">Please enter a valid last name</div>
+        </div>
+
+        <div class="form-group">
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+            <div class="error" id="dob-error">Please enter a valid date of birth</div>
+        </div>
+
+        <button type="submit" class="register-btn">Register</button>
+    </form>
+
+    <div class="back-to-login">
+        <a href="/login/login.html">Already have an account? Login here</a>
+    </div>
+</div>
+
+<pre id="server-response-display"></pre>
+
+<script>
+    // Form validation
+    document.getElementById('registerForm').addEventListener('input', function (e) {
+        const target = e.target;
+        const error = document.getElementById(target.id + '-error');
+
+        if (target.id === 'confirm-password') {
+            const password = document.getElementById('password').value;
+            if (target.value !== password) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        } else {
+            if (!target.checkValidity()) {
+                error.style.display = 'block';
+            } else {
+                error.style.display = 'none';
+            }
+        }
+    });
+
+    // Handle form submission
+    // async function handleRegister(event) {
+    //     event.preventDefault();
+    //
+    //     // Validate passwords match
+    //     const password = document.getElementById('password').value;
+    //     const confirmPassword = document.getElementById('confirm-password').value;
+    //     if (password !== confirmPassword) {
+    //         document.getElementById('confirm-password-error').style.display = 'block';
+    //         return;
+    //     }
+    //
+    //     // Get form data
+    //     const formData = {
+    //         email: document.getElementById('email').value,
+    //         password: password,
+    //         fname: document.getElementById('fname').value,
+    //         lname: document.getElementById('lname').value,
+    //         dob: document.getElementById('dob').value
+    //     };
+    //
+    //     try {
+    //         const response = await fetch('http://localhost:8080/api/users/create', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(formData)
+    //         });
+    //
+    //         const data = await response.json();
+    //         const pre = document.getElementById("server-response-display");
+    //         const code = document.createElement("code");
+    //         code.innerHTML = JSON.stringify(data, null, 4);
+    //         pre.innerHTML = "";
+    //         pre.appendChild(code);
+    //
+    //         if (response.ok) {
+    //             // Tra ve login neu dang ky thanh cong
+    //             window.location.href = '/login';
+    //         }
+    //     } catch (error) {
+    //         //Return error nếu có lỗi
+    //         console.error('Registration error:', error);
+    //         const pre = document.getElementById("server-response-display");
+    //         pre.innerHTML = `Error: ${error.message}`;
+    //     }
+    // }
+
+    async function handleRegister(event) {
+        event.preventDefault();
+
+        try {
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                fname: document.getElementById('fname').value,
+                lname: document.getElementById('lname').value,
+                dob: document.getElementById('dob').value,
+                authProvider: 'MANUAL',
+                isEmailVerified: true,
+            };
+
+            const response = await fetch('http://localhost:8080/api/users/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            // First check if the response has content
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await response.json();
+                const pre = document.getElementById("server-response-display");
+                const code = document.createElement("code");
+                code.innerHTML = JSON.stringify(data, null, 4);
+                pre.innerHTML = "";
+                pre.appendChild(code);
+            } else {
+                // Handle non-JSON response
+                const text = await response.text();
+                const pre = document.getElementById("server-response-display");
+                pre.innerHTML = `Server Response: ${text}`;
+            }
+
+            if (response.ok) {
+                // Redirect to login page on successful registration
+                window.location.href = '/login/login.html';
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            const pre = document.getElementById("server-response-display");
+            pre.innerHTML = `Error: ${error.message}`;
+        }
+    }
+
+
+    // 3 nam tuoi moi duoc dang ky frfr
+    const dobInput = document.getElementById('dob');
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 3, today.getMonth(), today.getDate());
+    dobInput.max = maxDate.toISOString().split('T')[0];
+</script>
+</body>
+</html>

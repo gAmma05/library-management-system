@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #357abd;
+        }
+
+        .go-to-page-btn {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+
+        .or-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background-color: #ccc;
+        }
+
+        .or-divider::before {
+            left: 0;
+        }
+
+        .or-divider::after {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div id="g_id_onload"
+         data-client_id="470863608633-n4kaljc3aj03omd4mc6v4m02m6cghp81.apps.googleusercontent.com"
+         data-context="signin" data-ux_mode="popup" data-callback="loginGoogle" data-itp_support="true">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="pill"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+
+    <div class="or-divider">OR</div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <div class="go-to-page-btn">
+        <a href="/register/register.html">New here? Register now!</a>
+        <a href="/guest/guest.html">Continue as Guest</a>
+    </div>
+
+</div>
+
+<pre id="server-response-dislay"></pre>
+
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+    const url = "http://localhost:8080/api/auth/googleLogin"
+
+    async function loginGoogle(data) {
+        try {
+            console.log('Sending credential to:', url);
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    credential: data.credential
+                })
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers));
+
+            const rawResponse = await response.text();
+            console.log('Raw response:', rawResponse);
+
+            if (rawResponse) {
+                const serverData = JSON.parse(rawResponse);
+                if (response.ok) {
+                    window.location.href = "/books/books.html";
+                } else {
+                    const pre = document.getElementById("server-response-dislay");
+                    const code = document.createElement("code");
+                    code.innerHTML = JSON.stringify(serverData, null, 4);
+                    pre.innerHTML = "";
+                    pre.appendChild(code);
+                }
+            } else {
+                throw new Error('Empty response received from server');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            const pre = document.getElementById("server-response-dislay");
+            pre.innerHTML = `Error: ${error.message}`;
+        }
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+            const pre = document.getElementById("server-response-dislay");
+            const code = document.createElement("code");
+            code.innerHTML = JSON.stringify(data, null, 4);
+            pre.innerHTML = "";
+            pre.appendChild(code);
+        } catch (error) {
+            console.error('Login error:', error);
+            const pre = document.getElementById("server-response-dislay");
+            pre.innerHTML = `Error: ${error.message}`;
+        }
+    }
+</script>
+</body>
+</html>
