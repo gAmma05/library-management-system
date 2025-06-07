@@ -139,7 +139,7 @@ public class AuthService {
     }
 
 
-    //cai nay se tra ve user thong qua signed token
+    //cai nay se tra ve user thong qua access token
     public Optional<User> verifyAT(String accessToken) {
         Algorithm algorithm = Algorithm.HMAC256(lmaConfiguration.getJwtSecret());
         DecodedJWT jwt = (DecodedJWT) JWT.require(algorithm)
@@ -153,5 +153,20 @@ public class AuthService {
     public User getProfile() {
         SecurityContext context = SecurityContextHolder.getContext();
         return (User) context.getAuthentication().getPrincipal();
+    }
+
+    public String returnDashboard(String email) {
+        String result = null;
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        User u = user.get();
+        if (u.getRole() == 0) {
+            result = "/dashboard/admin.html";
+        } else if (u.getRole() == 1) {
+            result = "/dashboard/member.html";
+        }
+        return result;
     }
 }

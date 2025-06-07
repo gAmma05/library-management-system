@@ -147,55 +147,6 @@
         }
     });
 
-    // Handle form submission
-    // async function handleRegister(event) {
-    //     event.preventDefault();
-    //
-    //     // Validate passwords match
-    //     const password = document.getElementById('password').value;
-    //     const confirmPassword = document.getElementById('confirm-password').value;
-    //     if (password !== confirmPassword) {
-    //         document.getElementById('confirm-password-error').style.display = 'block';
-    //         return;
-    //     }
-    //
-    //     // Get form data
-    //     const formData = {
-    //         email: document.getElementById('email').value,
-    //         password: password,
-    //         fname: document.getElementById('fname').value,
-    //         lname: document.getElementById('lname').value,
-    //         dob: document.getElementById('dob').value
-    //     };
-    //
-    //     try {
-    //         const response = await fetch('http://localhost:8080/api/users/create', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify(formData)
-    //         });
-    //
-    //         const data = await response.json();
-    //         const pre = document.getElementById("server-response-display");
-    //         const code = document.createElement("code");
-    //         code.innerHTML = JSON.stringify(data, null, 4);
-    //         pre.innerHTML = "";
-    //         pre.appendChild(code);
-    //
-    //         if (response.ok) {
-    //             // Tra ve login neu dang ky thanh cong
-    //             window.location.href = '/login';
-    //         }
-    //     } catch (error) {
-    //         //Return error nếu có lỗi
-    //         console.error('Registration error:', error);
-    //         const pre = document.getElementById("server-response-display");
-    //         pre.innerHTML = `Error: ${error.message}`;
-    //     }
-    // }
-
     async function handleRegister(event) {
         event.preventDefault();
 
@@ -217,22 +168,6 @@
                 },
                 body: JSON.stringify(formData)
             });
-
-            // First check if the response has content
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const data = await response.json();
-                const pre = document.getElementById("server-response-display");
-                const code = document.createElement("code");
-                code.innerHTML = JSON.stringify(data, null, 4);
-                pre.innerHTML = "";
-                pre.appendChild(code);
-            } else {
-                // Handle non-JSON response
-                const text = await response.text();
-                const pre = document.getElementById("server-response-display");
-                pre.innerHTML = `Server Response: ${text}`;
-            }
 
             if (response.ok) {
                 // Redirect to login page on successful registration
