@@ -118,6 +118,7 @@
 <script>
     const url = "http://localhost:8080/api/auth/googleLogin"
 
+
     async function loginGoogle(data) {
         try {
             console.log('Sending credential to:', url);
@@ -128,28 +129,33 @@
                 },
                 body: JSON.stringify({
                     credential: data.credential
-                })
+                }),
+                credentials: 'include'
             });
 
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers));
 
-            const rawResponse = await response.text();
-            console.log('Raw response:', rawResponse);
-
-            if (rawResponse) {
-                const serverData = JSON.parse(rawResponse);
-                if (response.ok) {
-                    window.location.href = "/books/books.html";
-                } else {
-                    const pre = document.getElementById("server-response-dislay");
-                    const code = document.createElement("code");
-                    code.innerHTML = JSON.stringify(serverData, null, 4);
-                    pre.innerHTML = "";
-                    pre.appendChild(code);
+            if (response.ok) {
+                let dashboard = await fetch('http://localhost:8080/api/auth/return_dashboard', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                if (dashboard.ok) {
+                    const data = await dashboard.json();
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    }
                 }
+            } else if (response.status === 401) {
+                window.location.href = "http://localhost:3000/login/login.html";
             } else {
-                throw new Error('Empty response received from server');
+                const pre = document.getElementById("server-response-dislay");
+                const code = document.createElement("code");
+                code.innerHTML = JSON.stringify(serverData, null, 4);
+                pre.innerHTML = "";
+                pre.appendChild(code);
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -172,8 +178,30 @@
                 body: JSON.stringify({
                     email: email,
                     password: password
-                })
+                }),
+                credentials: 'include'
             });
+
+            if (response.status === 200) {
+                let dashboard = await fetch('http://localhost:8080/api/auth/return_dashboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email
+                    }),
+                    credentials: 'include'
+                });
+                if (dashboard.ok) {
+                    const data = await dashboard.json();
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    }
+                }
+            } else if (response.status === 401) {
+                window.location.href = "http://localhost:3000/login/login.html";
+            }
 
             const data = await response.json();
             const pre = document.getElementById("server-response-dislay");
@@ -181,7 +209,8 @@
             code.innerHTML = JSON.stringify(data, null, 4);
             pre.innerHTML = "";
             pre.appendChild(code);
-        } catch (error) {
+        } catch
+            (error) {
             console.error('Login error:', error);
             const pre = document.getElementById("server-response-dislay");
             pre.innerHTML = `Error: ${error.message}`;
