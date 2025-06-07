@@ -5,6 +5,7 @@ import com.example.library_management_application.modules.auths.dto.GoogleLoginD
 import com.example.library_management_application.modules.auths.dto.LoginDTO;
 import com.example.library_management_application.modules.users.dto.UserResponseDTO;
 import jakarta.servlet.http.Cookie;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/googleLogin")
-    public ResponseEntity<Map<String, String>> googleLogin(@RequestBody GoogleLoginDto googleLoginDto) {
+    public ResponseEntity<Map<String, String>> googleLogin(@Valid @RequestBody GoogleLoginDto googleLoginDto) {
         try {
             System.out.println("Received Google login request");
             String accessToken = authService.loginThroughGoogle(googleLoginDto);
@@ -64,6 +65,12 @@ public class AuthController {
         try {
             System.out.println("Received login request");
             String accessToken = authService.validateUser(loginDTO);
+
+            if (accessToken == null) {
+                return new ResponseEntity(new HashMap<String, Object>() {{
+                    put("message", "Wrong email or password");
+                }}, HttpStatus.UNAUTHORIZED);
+            }
 
 //            Map<String, String> response = new HashMap<>();
 //            response.put("accessToken", accessToken);
@@ -111,7 +118,7 @@ public class AuthController {
     }
 
 
-    @GetMapping("/return_dashboard")
+    @PostMapping("/return_dashboard")
     public ResponseEntity returnDashboard(@CookieValue(value = "accessToken", required = false) String accessToken) {
         if (accessToken == null) {
             // If no cookie is present, redirect to login page

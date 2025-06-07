@@ -107,7 +107,7 @@
 
     <div class="go-to-page-btn">
         <a href="/register/register.html">New here? Register now!</a>
-        <a href="/guest/guest.html">Continue as Guest</a>
+        <a href="/dashboard/guest.html">Continue as Guest</a>
     </div>
 
 </div>
@@ -136,7 +136,7 @@
 
             if (response.ok) {
                 let dashboard = await fetch('http://localhost:8080/api/auth/return_dashboard', {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -200,15 +200,11 @@
                     }
                 }
             } else if (response.status === 401) {
-                window.location.href = "http://localhost:3000/login/login.html";
-            }
+                const errorData = await response.json();
+                const pre = document.getElementById("server-response-dislay");
+                pre.innerHTML = errorData.message;
 
-            const data = await response.json();
-            const pre = document.getElementById("server-response-dislay");
-            const code = document.createElement("code");
-            code.innerHTML = JSON.stringify(data, null, 4);
-            pre.innerHTML = "";
-            pre.appendChild(code);
+            }
         } catch
             (error) {
             console.error('Login error:', error);

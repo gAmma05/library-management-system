@@ -56,13 +56,15 @@ public class AuthService {
     public String validateUser(LoginDTO loginDTO) {
         Optional<User> user = userRepository.findByEmail(loginDTO.getEmail());
         if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong email or password");
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This email isn't registered yet. Please register first.");
+            return null;
         }
 
         User u = user.get();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(loginDTO.getPassword(), u.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong email or password");
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong email or password");
+            return null;
         }
 
         return signJwtToken(u);
